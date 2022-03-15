@@ -53,6 +53,7 @@ print('Connecting to vehicle on: %s' % connection_string)
 vehicle = connect(connection_string, wait_ready=True, timeout=300)
 
 gpsCoordinate = db.reference('appusers/opLCMhzkgTULMti9dp5X4sywGDw1/gps')
+droneCurrentGPS= db.reference('drones/drone1')
 
 
 def arm_and_takeoff(aTargetAltitude):
@@ -93,6 +94,13 @@ def splitGPSToLatLng(gpsString):
 
 
 targetLocationString = gpsCoordinate.get()
+
+
+def updateDroneLocation(lattitude, longitude):
+    droneCurrentGPS.set(str(lattitude)+","+str(longitude))
+    pass
+
+
 try:
     # Use the python gps package to access the laptop GPS
     gpsd = gps.gps(mode=gps.WATCH_ENABLE)
@@ -109,7 +117,8 @@ try:
 
             # Read the GPS state from the laptop
         next(gpsd)
-
+        print("Drone's Current Location - ",vehicle.location.global_frame.lat,vehicle.location.global_frame.lng)
+        updateDroneLocation(vehicle.location.global_frame.lat,vehicle.location.global_frame.lng)
         # Once we have a valid location (see gpsd documentation) we can start moving our vehicle around
         if (gpsd.valid & gps.LATLON_SET) != 0:
             # GETTING LAT LONG FROM CLOUD @RAKHUL REFER FROM HERE
